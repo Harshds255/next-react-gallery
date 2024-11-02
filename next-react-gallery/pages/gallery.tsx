@@ -1,34 +1,31 @@
-import { useEffect } from "react";
 import { images } from "./data/images";
+import { useRef } from 'react';
 
 const gallery = () => {
-  useEffect(() => {
-    let elementPos = 0;
-    document.querySelectorAll(".image-container img").forEach((image) => {
-      image.onclick = () => {
-        document.querySelector(".maximise").style.display = "block";
-        document.querySelector(".maximise img").src = image.getAttribute("src");
-        elementPos = images.findIndex(
-          (obj) => obj.id == image.getAttribute("key")
-        );
-      };
-    });
+  const maximiseRef = useRef(null);
+  const imageRef = useRef(null);
+  let elementPos = 0;
+  
+  const handleImageClick = (pos:any) => {
+    maximiseRef.current!.style.display = "block";
+    elementPos = pos;
+    imageRef.current!.src = images[elementPos].img;
+  }
 
-    document.querySelector(".close").onclick = () => {
-      document.querySelector(".maximise").style.display = "none";
-    };
+  const handleClose = () => {
+    maximiseRef.current!.style.display = 'none';
+  }
 
-    document.querySelector(".prev").onclick = () => {
-      console.log(elementPos);
-      if (elementPos > 0)
-        document.querySelector(".maximise img").src = images[--elementPos].img;
-    };
-    document.querySelector(".next").onclick = () => {
-      console.log(elementPos);
-      if (elementPos < images.length - 1)
-        document.querySelector(".maximise img").src = images[++elementPos].img;
-    };
-  }, []);
+  const handleLeftClick = () => {
+    console.log(elementPos);
+    if (elementPos > 0)
+      imageRef.current!.src = images[--elementPos].img;
+  }
+
+  const handleRightClick = () => {
+    if (elementPos < images.length - 1)
+      imageRef.current!.src = images[++elementPos].img;
+  }
 
   return (
     <div>
@@ -41,19 +38,20 @@ const gallery = () => {
                 key={key}
                 src={item.img}
                 alt="images"
+                onClick={()=>handleImageClick(key)}
               />
             );
           })}
         </div>
       </div>
-      <div className="maximise fixed top-0 left-0 w-full h-full z-30 bg-gray-800 bg-opacity-90 hidden">
-        <span className="close top-0 right-10 absolute text-5xl z-50 text-white cursor-pointer">
+      <div className="maximise fixed top-0 left-0 w-full h-full z-30 bg-gray-800 bg-opacity-90 hidden" ref={maximiseRef}>
+        <span className="close top-0 right-10 absolute text-5xl z-50 text-white cursor-pointer" onClick={handleClose}>
           &times;
         </span>
-        <span className="prev top-1/2 left-10 absolute text-5xl z-50 text-white cursor-pointer">
+        <span className="prev top-1/2 left-10 absolute text-5xl z-50 text-white cursor-pointer" onClick={handleLeftClick}>
           &lt;
         </span>
-        <span className="next top-1/2 right-10 absolute text-5xl z-50 text-white cursor-pointer">
+        <span className="next top-1/2 right-10 absolute text-5xl z-50 text-white cursor-pointer" onClick={handleRightClick}>
           &gt;
         </span>
         <div className="flex justify-center items-center w-full h-full">
@@ -61,6 +59,7 @@ const gallery = () => {
             className="m-auto border-8 border-white-700 w-full h-full border border-double rounded-2xl object-scale-down object-fill"
             src=""
             alt=""
+            ref={imageRef}
           />
         </div>
       </div>
